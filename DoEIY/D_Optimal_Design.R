@@ -8,23 +8,40 @@ D_Optimal_Designs <- function(levels, components, factor_types, nruns) {
   
   num_factors <- length(levels)
   
+  factor_degree <- function(fname, components) {
+    deg <- 1
+    for (term in components) {
+      parts <- unlist(strsplit(term, ":"))
+      count <- sum(parts == fname)
+      if (count > deg) deg <- count
+    }
+    deg
+  }
+  
   # Build candidate set
   candidate_list <- lapply(seq_len(num_factors), function(i) {
-    ft <- factor_types[i]
-    k  <- levels[i]
+    fname <- var_names[i]
+    ft    <- factor_types[i]
+    k     <- levels[i]
+    
+    deg   <- factor_degree(fname, components)
     
     if (ft == "Continuous") {
-      # Use coded range [-1, 1] for better stability when using optFederov
-      seq(-1, 1, length.out = k) 
+      
+      if (deg == 1) {
+        seq(-1, 1, length.out = 2)
+      } else if (deg == 2) {
+        seq(-1, 1, length.out = 3)
+      } else {
+        seq(-1, 1, length.out = deg + 1)
+      }
+      
     } else if (ft == "Discrete") {
-      # Treat as numeric, equally spaced in [-1, 1]
-      if (k == 2) {c(-1, 1)} else {seq(-1, 1, length.out = k)}
+      if (k == 2) c(-1, 1) else seq(-1, 1, length.out = k)
     } else if (ft == "Categorical") {
-      # Nominal factor with k levels (labeled 1..k)
       factor(seq_len(k))
     } else {
-      stop("Unknown factor type '", ft,
-           "'. Use 'Continuous', 'Discrete', or 'Categorical'.")     
+      stop("Unknown factor type '", ft, "'")
     }
   })
       
