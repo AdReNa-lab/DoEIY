@@ -281,11 +281,11 @@ ui <- dashboardPage(
     left = p(
       paste0("\U00A9", format(Sys.Date(), "%Y")),
       a(
-        href = "",
-        strong(""), target = "_blank"
+        href = "https://www.ucl.ac.uk/responsive-nanomaterials/",
+        strong("AdReNa"), target = "_blank"
       )
     ),
-    right = "Version: 1.0.0"
+    right = "Version: 1.0.1"
   )
 )
 
@@ -1388,18 +1388,16 @@ server <- function(input, output, session) {
         colnames(design) <- factor_names
       }
     } else if (selected_design == "Box-Behnken") {
-      num_blocks <- input$fractional_factorial_blocks_select_id
+      num_blocks <- as.numeric(input$fractional_factorial_blocks_select_id)
       design <- Box_Behnken_Designs(n_factors)
-
+      
       if (num_blocks == 1) {
-        if ("Blocks" %in% colnames(design)) {
-          design <- subset(design, select = -blocks)
-        }
+        design <- design[, colnames(design) != "Block", drop = FALSE]
         colnames(design) <- factor_names
       } else {
-        blocks <- design$blocks
-        design <- subset(design, select = -blocks)
-        design <- cbind(design, blocks)
+        block_col <- design$Block
+        design <- design[, colnames(design) != "Block", drop = FALSE]
+        design <- cbind(design, Block = block_col)
         colnames(design) <- c(factor_names, "Block")
       }
     } else if (selected_design == "Central Composite") {
@@ -1501,15 +1499,19 @@ server <- function(input, output, session) {
         factor_types <- c(factor_types, "Metadata")
       } else {
         index <- which(factor_data$`Factor Names` == factor_name)
-        factor_type <- as.character(factor_data$`Factor Type`[index])
-        if (is.null(factor_type) || factor_type == "" || length(factor_type) == 0) {
+        if ("Factor Type" %in% colnames(factor_data)) {
+          factor_type <- as.character(factor_data$`Factor Type`[index])
+        } else {
+          factor_type <- "Continuous"
+        }
+        if (is.null(factor_type) || length(factor_type) == 0 || factor_type == "" || is.na(factor_type)) {
           factor_types <- c(factor_types, "Continuous")
         } else {
           factor_types <- c(factor_types, factor_type)
         }
       }
     }
-
+    
     factor_types_df <- as.data.frame(t(factor_types))
     colnames(factor_types_df) <- colnames(design)
 
