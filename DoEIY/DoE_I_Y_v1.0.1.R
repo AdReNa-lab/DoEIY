@@ -19,7 +19,7 @@ source("D_Optimal_Design.R")
 source("D_Optimal_Augment.R")
 source("Fractional_Factorial_Designs.R")
 source("Full_Factorial_Designs.R")
-source("Latin_Hypercube_Sampling_Designs.R")
+source("Latin_Hypercube_Designs.R")
 source("Plackett_Burman_Designs.R")
 
 # Source Shiny namespace modules
