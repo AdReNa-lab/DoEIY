@@ -72,3 +72,32 @@ test_that("validate_num_runs validates input runs properly", {
   expect_false(res$valid)
   expect_match(res$message, "must be a single numeric integer")
 })
+
+test_that("transform_term formats polynomial and interaction terms correctly", {
+  expect_equal(transform_term("A * A"), "I(A^2)")
+  expect_equal(transform_term("A * B"), "A:B")
+  expect_equal(transform_term("A"), "A")
+})
+
+test_that("update_factor_names cleans and formats ANOVA column names correctly", {
+  design_matrix <- data.frame(
+    A = c(-1, 1, -1, 1),
+    B = factor(c("Low", "Medium", "High", "Low")),
+    C = c(10, 20, 30, 40)
+  )
+  
+  # A has exactly 2 unique values, so A1 -> A
+  # B has 3 unique values, so B1 is NOT renamed to B
+  # A1:B should update to A:B, then since A and B are original columns, A:B -> A*B
+  # A1.B should update to A.B, then since A and B are original columns, A.B -> A*B
+  
+  new_cols <- c("A1", "B1", "A1:B", "A1.B", "C")
+  updated_cols <- update_factor_names(new_cols, design_matrix)
+  
+  expect_equal(updated_cols[1], "A")
+  expect_equal(updated_cols[2], "B1")
+  expect_equal(updated_cols[3], "A*B")
+  expect_equal(updated_cols[4], "A*B")
+  expect_equal(updated_cols[5], "C")
+})
+
