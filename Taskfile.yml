@@ -4,71 +4,61 @@ tasks:
   build:
     desc: Build the Docker image
     cmds:
-      - docker compose build
+    - docker compose build
 
   build-clean:
     desc: Build the Docker image from scratch without using cache
     cmds:
-      - docker compose build --no-cache
+    - docker compose build --no-cache
 
   up:
     desc: Start the Docker container in the background
     cmds:
-      - docker compose up -d
+    - docker compose up -d
 
   down:
     desc: Stop and remove the Docker container
     cmds:
-      - docker compose down
+    - docker compose down
 
   logs:
     desc: View the Docker container logs in real-time
     cmds:
-      - docker compose logs -f
+    - docker compose logs -f
 
   restart:
     desc: Restart the Docker container
     cmds:
-      - docker compose restart
+    - docker compose restart
 
   test:
     desc: Run R unit tests inside the Docker container
     cmds:
-      - docker compose exec -T doeiy Rscript tests/run_tests.R
+    - docker compose exec -T doeiy Rscript tests/run_tests.R
 
   test-clean:
     desc: Rebuild the Docker image without cache and run tests
     cmds:
-      - task: build-clean
-      - task: up
-      - task: test
+    - task: build-clean
+    - task: up
+    - task: test
 
   check-quality:
     desc: Show summary of codebase quality and testing coverage
     cmds:
-      - echo "Code Quality Status"
-      - echo "--------------------"
-      - echo "SOLID / SRP - Main app (doe_i_y.R) violates SRP; refactoring planned."
-      - echo "DRY - Duplicated functions (factor_degree, fix_component, validate_num_runs) identified."
-      - echo "KISS - Generators are simple; monolithic server is complex."
-      - echo "Testability - Design generators are 100% unit-tested via testthat."
-      - echo "--------------------"
-      - task: test
+    - task: test
 
   b-M:
     desc: Bump Major version, commit, and tag (e.g., 1.0.1 -> 2.0.0)
     cmds:
-      - ./scripts/bump_version.sh major
+    - ./scripts/bump_version.sh major
 
   b-m:
     desc: Bump minor version, commit, and tag (e.g., 1.0.1 -> 1.1.0)
     cmds:
-      - ./scripts/bump_version.sh minor
+    - ./scripts/bump_version.sh minor
 
   b-p:
     desc: Bump patch version, commit, and tag (e.g., 1.0.1 -> 1.0.2)
     cmds:
-      - ./scripts/bump_version.sh patch
-
-
-
+    - ./scripts/bump_version.sh patch

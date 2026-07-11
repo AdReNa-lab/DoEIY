@@ -11,6 +11,7 @@ library(broom)
 # Source utility modules
 source("utils/formula_utils.R")
 source("utils/optimization_utils.R")
+source("utils/design_descriptions.R")
 
 # Source designs
 source("utils/Box_Behnken_Designs.R")
@@ -140,5 +141,3 @@ server <- function(input, output, session) {
   resources_server("resources")
 }
 
-# ===== Start the App ==========================================================
-shinyApp(ui, server)
