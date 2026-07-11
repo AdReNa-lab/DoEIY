@@ -41,8 +41,13 @@ RUN R -e "install.packages(c( \
 # Set working directory
 WORKDIR /app
 
-# Copy the app files into the container
+# Accept app version as build argument and set environment variable
+ARG APP_VERSION=""
+ENV APP_VERSION=${APP_VERSION}
+
+# Copy the app files and the version metadata file into the container
 COPY DoEIY/ /app/
+COPY version.txt /app/
 
 # Expose port 3838 for the Shiny application
 EXPOSE 3838

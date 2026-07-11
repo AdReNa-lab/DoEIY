@@ -1,3 +1,3 @@
 # Standard entry point for R Shiny app
-source("DoE_I_Y_v1.0.1.R")
+source("doe_i_y.R")
 shinyApp(ui, server)
