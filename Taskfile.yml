@@ -1,0 +1,32 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the Docker image
+    cmds:
+      - docker compose build
+
+  build-clean:
+    desc: Build the Docker image from scratch without using cache
+    cmds:
+      - docker compose build --no-cache
+
+  up:
+    desc: Start the Docker container in the background
+    cmds:
+      - docker compose up -d
+
+  down:
+    desc: Stop and remove the Docker container
+    cmds:
+      - docker compose down
+
+  logs:
+    desc: View the Docker container logs in real-time
+    cmds:
+      - docker compose logs -f
+
+  restart:
+    desc: Restart the Docker container
+    cmds:
+      - docker compose restart
