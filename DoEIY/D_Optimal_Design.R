@@ -8,16 +8,6 @@ D_Optimal_Designs <- function(levels, components, factor_types, nruns) {
   
   num_factors <- length(levels)
   
-  factor_degree <- function(fname, components) {
-    deg <- 1
-    for (term in components) {
-      parts <- unlist(strsplit(term, ":"))
-      count <- sum(parts == fname)
-      if (count > deg) deg <- count
-    }
-    deg
-  }
-  
   # Build candidate set
   candidate_list <- lapply(seq_len(num_factors), function(i) {
     fname <- var_names[i]

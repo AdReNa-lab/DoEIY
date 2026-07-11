@@ -21,6 +21,8 @@ library(dplyr)
 
 
 # ===== Load the Design Functions ============================================
+source("formula_utils.R")
+source("optimization_utils.R")
 source("Box_Behnken_Designs.R")
 source("Full_Factorial_Designs.R")
 source("Plackett_Burman_Designs.R")
@@ -1115,14 +1117,7 @@ server <- function(input, output, session) {
     output$fractional_factorial_resolution_ui_id <- renderUI({
       p(HTML(paste0("This is a ", strong(design$Resolution), " design.")))
     })
-  })
-
   # ===== For the D-Optimal Design
-  # Helper function
-  classify_terms <- function(term) {
-    length(unlist(strsplit(term, ":")))
-  }
-
   # Adds all main effects to the D-Opt Design
   observeEvent(input$DOD_main_effects_add_btn_id, {
     current_factor_data <- factor_data_reactive()
@@ -1272,36 +1267,12 @@ server <- function(input, output, session) {
     
     names(factor_info) <- factor_data$`Factor Names`
     
-    term_params <- function(term) {
-      factors <- unlist(strsplit(term, ":"))
-      tab <- table(factors)
-      
-      prod(sapply(names(tab), function(f) {
-        info <- factor_info[[f]]
-        if (info$type == "Continuous") {
-          1
-        } else {
-          length(info$levels) - 1
-        }
-      }))
-    }
-    
-    num_parameters <- sum(sapply(components, term_params)) + 1
-    
-    factor_degree <- function(f) {
-      deg <- 1
-      for (term in components) {
-        parts <- unlist(strsplit(term, ":"))
-        count <- sum(parts == f)
-        if (count > deg) deg <- count
-      }
-      deg
-    }
+    num_parameters <- sum(sapply(components, function(t) term_params(t, factor_info))) + 1
     
     max_runs <- prod(sapply(names(factor_info), function(f) {
       info <- factor_info[[f]]
       if (info$type == "Continuous") {
-        deg <- factor_degree(f)
+        deg <- factor_degree(f, components)
         deg + 1
       } else {
         length(info$levels)
@@ -1329,41 +1300,6 @@ server <- function(input, output, session) {
     factor_names <- factor_data$`Factor Names`
 
     randomize <- input$randomize_checkbox_id
-
-    # Helper function to check that the number of runs selected by the
-    # user is in the right format for LHS and D-Opt
-    validate_num_runs <- function(num_runs) {
-      if (is.character(num_runs) || is.factor(num_runs)) {
-        suppressWarnings(num_runs <- as.numeric(as.character(num_runs)))
-        return(FALSE)
-      }
-      
-      # Check it's numeric
-      if (!is.numeric(num_runs) || length(num_runs) != 1 || is.na(num_runs)) {
-        showNotification("The 'Number of Experimental Runs' must be a single numeric integer.", duration = 20, closeButton = TRUE)
-        return(FALSE)
-      }
-
-      # Check it's an integer (within floating-point tolerance)
-      if (abs(num_runs - round(num_runs)) > .Machine$double.eps^0.5) {
-        showNotification("The 'Number of Experimental Runs' must be an integer (no decimal values).", duration = 20, closeButton = TRUE)
-        return(FALSE)
-      }
-
-      # Check it's positive
-      if (num_runs <= 0) {
-        showNotification("The 'Number of Experimental Runs' must be greater than zero.")
-        return(FALSE)
-      }
-      
-      # check it is within the min and max number of runs for a DOD
-      if (!(num_runs >= DOD_min_runs_reactive() && num_runs <= DOD_max_runs_reactive())) {
-        showNotification("The 'Number of Experimental Runs' must be within the minumum and maximum number of runs provided.")
-        return(FALSE) 
-      }
-      TRUE
-    }
-
 
     # Creates the design based on the users choices
     if (selected_design == "Plackett-Burman") {
@@ -1405,7 +1341,11 @@ server <- function(input, output, session) {
       design <- Central_Composite_Designs(n_factors, ccd_type)
       colnames(design) <- factor_names
     } else if (selected_design == "Latin Hypercube Sampling") {
-      req(validate_num_runs(input$LHS_runs_id), cancelOutput = TRUE)
+      val_res <- validate_num_runs(input$LHS_runs_id, DOD_min_runs_reactive(), DOD_max_runs_reactive())
+      if (!val_res$valid) {
+        showNotification(val_res$message, duration = 20, closeButton = TRUE)
+      }
+      req(val_res$valid, cancelOutput = TRUE)
       num_runs <- as.integer(round(input$LHS_runs_id))
 
       design <- Latin_Hypercube_Designs(n_factors, num_runs)
@@ -1414,7 +1354,11 @@ server <- function(input, output, session) {
       model_components <- d_optimal_model_components()
 
 
-      req(validate_num_runs(input$DOD_num_runs_id), cancelOutput = TRUE)
+      val_res <- validate_num_runs(input$DOD_num_runs_id, DOD_min_runs_reactive(), DOD_max_runs_reactive())
+      if (!val_res$valid) {
+        showNotification(val_res$message, duration = 20, closeButton = TRUE)
+      }
+      req(val_res$valid, cancelOutput = TRUE)
       num_runs <- as.integer(round(input$DOD_num_runs_id))
 
       level_values <- as.character(factor_data$`Level Values`)
@@ -2562,41 +2506,6 @@ server <- function(input, output, session) {
     
     randomize <- input$Augment_randomize_checkbox_id
     
-    # Helper function to check that the number of runs selected by the
-    # user is in the right format for LHS and D-Opt
-    validate_num_runs <- function(num_runs) {
-      if (is.character(num_runs) || is.factor(num_runs)) {
-        suppressWarnings(num_runs <- as.numeric(as.character(num_runs)))
-        return(FALSE)
-      }
-      
-      # Check it's numeric
-      if (!is.numeric(num_runs) || length(num_runs) != 1 || is.na(num_runs)) {
-        showNotification("The 'Number of Experimental Runs' must be a single numeric integer.", duration = 20, closeButton = TRUE)
-        return(FALSE)
-      }
-      
-      # Check it's an integer (within floating-point tolerance)
-      if (abs(num_runs - round(num_runs)) > .Machine$double.eps^0.5) {
-        showNotification("The 'Number of Experimental Runs' must be an integer (no decimal values).", duration = 20, closeButton = TRUE)
-        return(FALSE)
-      }
-      
-      # Check it's positive
-      if (num_runs <= 0) {
-        showNotification("The 'Number of Experimental Runs' must be greater than zero.")
-        return(FALSE)
-      }
-      
-      # check it is within the min and max number of runs for a DOD
-      if (!(num_runs >= Augment_min_runs_reactive() && num_runs <= Augment_max_runs_reactive())) {
-        showNotification("The 'Number of Experimental Runs' must be within the minumum and maximum number of runs provided.")
-        return(FALSE) 
-      }
-      TRUE
-    }
-    
-
     # Creates the design based on the users choices
     model_components <- augment_design_model_components()
     
@@ -2605,8 +2514,11 @@ server <- function(input, output, session) {
     
     other_columns <- existing_design_full[, !(colnames(existing_design_full) %in% factor_names), drop = FALSE]
     
-    
-    req(validate_num_runs(input$Augment_num_runs_id), cancelOutput = TRUE)
+    val_res <- validate_num_runs(input$Augment_num_runs_id, Augment_min_runs_reactive(), Augment_max_runs_reactive())
+    if (!val_res$valid) {
+      showNotification(val_res$message, duration = 20, closeButton = TRUE)
+    }
+    req(val_res$valid, cancelOutput = TRUE)
     num_runs <- as.integer(round(input$Augment_num_runs_id))
     
     factor_types <- setNames(as.character(factor_data$`Factor Type`), factor_names)
@@ -3483,6 +3395,9 @@ server <- function(input, output, session) {
     # Note:  this may take some time if there are many non-continuous variables
     observeEvent(input$run_optim_btn, {
       req(model_formula, design_matrix, factor_types, model_aov, input$opt_type)
+      if (input$opt_type == "Find Target") {
+        validate(need(!is.null(input$target_response) && !is.na(input$target_response), "Target response is required."))
+      }
 
       # Extract factors in the model (e.g. exclude interactions, just keep their components)
       term_labels <- attr(terms(model_formula), "term.labels")
@@ -3549,21 +3464,6 @@ server <- function(input, output, session) {
         cont_upper <- c(cont_upper, max(colv, na.rm = TRUE))
       }
       names(cont_start) <- continuous_vars
-
-      # adjusts the prediction so that the objective is to always minimize
-      objective_value <- function(pred, opt_type, target = NULL) {
-        if (opt_type == "Maximize") {
-          return(-pred)
-        }
-        if (opt_type == "Minimize") {
-          return(pred)
-        }
-        if (opt_type == "Find Target") {
-          validate(need(!is.null(target), "Target response is required."))
-          return((pred - target)^2)
-        }
-        return(pred)
-      }
 
       # Initialize variables to track the global best solution across the grid of non-cont combos
       best_obj <- Inf

@@ -2,6 +2,8 @@
 library(testthat)
 
 # Source all the design generators
+source("formula_utils.R")
+source("optimization_utils.R")
 source("Box_Behnken_Designs.R")
 source("Full_Factorial_Designs.R")
 source("Plackett_Burman_Designs.R")

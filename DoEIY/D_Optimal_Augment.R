@@ -19,16 +19,6 @@ D_Optimal_Augment <- function(existing_design,
   # 2. Identify polynomial degree of each factor
   #
 
-  factor_degree <- function(fname) {
-    deg <- 1
-    for (term in components) {
-      parts <- strsplit(term, ":")[[1]]
-      count <- sum(parts == fname)
-      if (count > deg) deg <- count
-    }
-    deg
-  }
-  
   #
   # 3. Build full candidate set for safe model parameter counting
   #
@@ -37,7 +27,7 @@ D_Optimal_Augment <- function(existing_design,
 
     ftype <- factor_types[[f]]
     levs  <- levels[[f]]
-    deg   <- factor_degree(f)
+    deg   <- factor_degree(f, components)
     
     if (ftype == "Continuous") {
       seq(-1, 1, length.out = deg + 1)
@@ -56,22 +46,6 @@ D_Optimal_Augment <- function(existing_design,
   
   candidate_set <- do.call(expand.grid, candidate_list)
   colnames(candidate_set) <- var_names
-  #
-  # 4. Fix component strings to ensure quadratic terms enter the formula
-  #
-
-  fix_component <- function(term) {
-    parts <- strsplit(term, ":")[[1]]
-    uniq  <- unique(parts)
-    
-    if (length(uniq) == 1 && length(parts) > 1) {
-      fname <- uniq[1]
-      deg   <- length(parts)
-      return(paste0("I(", fname, "^", deg, ")"))
-    }
-    
-    term
-  }
   
   components_fixed <- sapply(components, fix_component)
   formula <- as.formula(paste("~", paste(components_fixed, collapse = " + ")))
