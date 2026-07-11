@@ -1,0 +1,13 @@
+services:
+  doeiy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: doeiy-app
+    ports:
+      - "3838:3838"
+    volumes:
+      - ./DoEIY:/app
+    environment:
+      - PORT=3838
+    restart: unless-stopped
