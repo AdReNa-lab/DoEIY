@@ -45,5 +45,8 @@ COPY DoEIY/ /app/
 # Expose port 3838 for the Shiny application
 EXPOSE 3838
 
+# OpenShift compatibility: Allow the root group (GID 0) to read/write in /app
+RUN chgrp -R 0 /app && chmod -R g=u /app
+
 # Run the Shiny application directly
 CMD ["R", "-e", "shiny::runApp('/app', host='0.0.0.0', port=3838)"]

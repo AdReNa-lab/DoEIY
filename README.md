@@ -238,4 +238,84 @@ Before using DoEIY, it is helpful to review some core DoE terminology:
 - **Rotatability** ensures prediction precision depends only on distance from the centre.
 - **Orthogonality** ensures estimates of model terms are uncorrelated.
 
+# Deployment
+
+DoEIY is Docker-ready and can be deployed locally using Docker / Docker Compose or to cloud platforms such as Red Hat OpenShift.
+
+## Local Deployment (Docker & Docker Compose)
+
+The easiest way to run the application locally is using the provided Docker configuration.
+
+### Prerequisites
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- Optionally, [Task](https://taskfile.dev/) (for running tasks from the [Taskfile.yml](file:///home/richard/coding/DoEIY/Taskfile.yml))
+
+### Running the App
+Using the [Taskfile.yml](file:///home/richard/coding/DoEIY/Taskfile.yml) commands:
+1. **Build the image:**
+   ```bash
+   task build
+   ```
+2. **Start the application:**
+   ```bash
+   task up
+   ```
+   The application will start in the background and is accessible at `http://localhost:3838`.
+3. **View logs:**
+   ```bash
+   task logs
+   ```
+4. **Stop the application:**
+   ```bash
+   task down
+   ```
+
+Alternatively, you can run standard docker-compose commands directly:
+```bash
+docker compose up -d --build
+docker compose down
+```
+
+---
+
+## Cloud Deployment (Red Hat OpenShift)
+
+DoEIY is compatible with the default Security Context Constraints (SCC) in Red Hat OpenShift (including the random non-root UID execution policy). You can deploy the app to OpenShift using two main strategies:
+
+### Strategy 1: Deploy from Git (Recommended for In-Cluster Builds)
+
+OpenShift's Developer Console allows you to deploy the application directly from your Git repository using the built-in [Dockerfile](file:///home/richard/coding/DoEIY/Dockerfile) build strategy.
+
+1. **Open the OpenShift Web Console** and switch to the **Developer** perspective.
+2. Select your namespace/project, click **+Add**, and select **From Git**.
+3. Enter your Git Repository URL.
+4. (Optional) Under **Show advanced Git options**, specify the branch name (e.g., `main`).
+5. OpenShift will automatically detect the [Dockerfile](file:///home/richard/coding/DoEIY/Dockerfile) at the root of the project and set the build option to **Dockerfile**.
+6. Under **Target Port**, verify that it is set to `3838`.
+7. Click **Create**.
+
+> [!IMPORTANT]
+> **Build Resources:** Compiling 16+ R packages (like `ggplot2`, `plotly`, `AlgDesign`) from source takes significant memory and CPU. If your build fails or runs out of memory, increase the resources in the generated `BuildConfig`:
+> ```yaml
+> spec:
+>   resources:
+>     limits:
+>       memory: 4Gi
+>       cpu: "2"
+>     requests:
+>       memory: 2Gi
+>       cpu: "1"
+> ```
+
+### Strategy 2: Deploy Built Container Image (GHCR)
+
+You can also deploy the pre-built Docker image produced by the GitHub Actions CI pipeline.
+
+1. Switch to the **Developer** perspective, click **+Add**, and select **Container Image**.
+2. Select **Image name from external registry** and enter the GHCR image path (substituting your GitHub username/org):
+   `ghcr.io/<your-github-username>/doeiy:latest`
+3. Verify the **Target Port** is set to `3838`.
+4. Click **Create**.
+
 [^1]: Corresponding author: <s.guldin@ucl.ac.uk>
