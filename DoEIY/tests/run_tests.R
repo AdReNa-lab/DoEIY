@@ -2,16 +2,16 @@
 library(testthat)
 
 # Source all the design generators
-source("formula_utils.R")
-source("optimization_utils.R")
-source("Box_Behnken_Designs.R")
-source("Full_Factorial_Designs.R")
-source("Plackett_Burman_Designs.R")
-source("Fractional_Factorial_Designs.R")
-source("Central_Composite_Designs.R")
-source("Latin_Hypercube_Designs.R")
-source("D_Optimal_Design.R")
-source("D_Optimal_Augment.R")
+source("utils/formula_utils.R")
+source("utils/optimization_utils.R")
+source("utils/Box_Behnken_Designs.R")
+source("utils/Full_Factorial_Designs.R")
+source("utils/Plackett_Burman_Designs.R")
+source("utils/Fractional_Factorial_Designs.R")
+source("utils/Central_Composite_Designs.R")
+source("utils/Latin_Hypercube_Designs.R")
+source("utils/D_Optimal_Design.R")
+source("utils/D_Optimal_Augment.R")
 
 # Run all tests in the tests/testthat directory
 test_dir("tests/testthat", reporter = "summary")
