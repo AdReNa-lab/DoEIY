@@ -1,4 +1,8 @@
 # DoEIY
+[![Dockerized](https://img.shields.io/badge/dockerized-yes-blue?logo=docker)](https://github.com/Kugeleis/DoEIY)
+[![CI Build](https://github.com/Kugeleis/DoEIY/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/Kugeleis/DoEIY/actions/workflows/docker-publish.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 An Open-Access Web Platform for Democratizing Experimental Design in Chemical and Materials Research
 
 # Introduction
