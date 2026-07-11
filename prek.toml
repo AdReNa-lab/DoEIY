@@ -1,0 +1,27 @@
+# Configuration for prek Git hooks
+
+[[repos]]
+repo = "builtin"
+hooks = [
+    { id = "trailing-whitespace" },
+    { id = "end-of-file-fixer" },
+    { id = "check-yaml" }
+]
+
+[[repos]]
+repo = "https://github.com/lorenzwalthert/precommit"
+rev = "v0.4.3"
+hooks = [
+    { id = "style-files" },
+    { id = "lintr" }
+]
+
+[[repos]]
+repo = "local"
+[[repos.hooks]]
+id = "r-unit-tests"
+name = "Run R Unit Tests (Docker)"
+entry = "docker compose exec -T doeiy Rscript tests/run_tests.R"
+language = "system"
+always_run = true
+pass_filenames = false

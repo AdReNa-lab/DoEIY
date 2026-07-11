@@ -33,7 +33,9 @@ RUN R -e "install.packages(c( \
     'lhs', \
     'DoE.base', \
     'AlgDesign', \
-    'dplyr' \
+    'dplyr', \
+    'testthat', \
+    'DT' \
     ), repos='https://packagemanager.posit.co/cran/__linux__/jammy/latest')"
 
 # Set working directory
