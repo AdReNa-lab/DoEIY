@@ -34,7 +34,7 @@ ui <- dashboardPage(
   skin = "black",
   header = dashboardHeader(
     title = span(
-      img(src = "DoEIYLogo.png", height = "40px", style = "margin-right: 15px; margin-bottom: 5px;"),
+      img(src = "DoEIY_Logo_symbol.png", height = "40px", style = "margin-right: 15px; margin-bottom: 5px;"),
       strong("DoEIY", style = "color: white; font-size: 1.25em;")
     ),
     titleWidth = 350

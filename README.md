@@ -271,7 +271,7 @@ Using the [Taskfile.yml](file:///home/richard/coding/DoEIY/Taskfile.yml) command
    task down
    ```
 
-Alternatively, you can run standard docker-compose commands directly:
+Alternatively, you can run standard docker compose commands directly:
 ```bash
 docker compose up -d --build
 docker compose down
