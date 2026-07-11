@@ -48,7 +48,7 @@ tasks:
     cmds:
       - echo "Code Quality Status"
       - echo "--------------------"
-      - echo "SOLID / SRP - Main app (DoE_I_Y_v1.0.1.R) violates SRP; refactoring planned."
+      - echo "SOLID / SRP - Main app (doe_i_y.R) violates SRP; refactoring planned."
       - echo "DRY - Duplicated functions (factor_degree, fix_component, validate_num_runs) identified."
       - echo "KISS - Generators are simple; monolithic server is complex."
       - echo "Testability - Design generators are 100% unit-tested via testthat."

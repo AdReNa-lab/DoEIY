@@ -29,6 +29,23 @@ source("modules/analyze_design.R")
 source("modules/model_explorer.R")
 source("modules/resources.R")
 
+# Determine application version dynamically
+get_app_version <- function() {
+  env_ver <- Sys.getenv("APP_VERSION", unset = "")
+  if (env_ver != "") {
+    return(env_ver)
+  }
+  
+  for (path in c("version.txt", "../version.txt", "DoEIY/version.txt")) {
+    if (file.exists(path)) {
+      return(trimws(readLines(path, n = 1, warn = FALSE)))
+    }
+  }
+  
+  return("1.0.1")
+}
+app_version <- get_app_version()
+
 # ===== UI Layout =============================================================
 ui <- dashboardPage(
   skin = "black",
@@ -70,7 +87,7 @@ ui <- dashboardPage(
         strong("AdReNa"), target = "_blank"
       )
     ),
-    right = "Version: 1.0.1"
+    right = paste("Version:", app_version)
   )
 )
 
